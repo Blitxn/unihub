@@ -3,13 +3,13 @@ const Scholarship = require('../model/Scholarship');
 class ScholarshipController {
   static async create(req, res) {
     try {
-      const { name, amount, requirements, university_id } = req.body;
+      const { name, provider, amount, eligibitily, deadline, type, university_id } = req.body;
 
       if (!name || !university_id) {
         return res.status(400).json({ message: 'Name and university_id are required' });
       }
 
-      const result = await Scholarship.create({ name, amount, requirements, university_id });
+      const result = await Scholarship.create({ name, provider, amount, eligibitily, deadline, type, university_id });
       res.status(201).json({ message: 'Scholarship created successfully', scholarshipId: result.insertId });
     } catch (error) {
       res.status(500).json({ message: 'Error creating scholarship', error: error.message });
@@ -53,14 +53,14 @@ class ScholarshipController {
   static async update(req, res) {
     try {
       const { id } = req.params;
-      const { name, amount, requirements, university_id } = req.body;
+      const { name, provider, amount, eligibitily, deadline, type, university_id } = req.body;
 
       const scholarship = await Scholarship.findById(id);
       if (!scholarship) {
         return res.status(404).json({ message: 'Scholarship not found' });
       }
 
-      await Scholarship.update(id, { name, amount, requirements, university_id });
+      await Scholarship.update(id, { name, provider, amount, eligibitily, deadline, type, university_id });
       res.status(200).json({ message: 'Scholarship updated successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Error updating scholarship', error: error.message });

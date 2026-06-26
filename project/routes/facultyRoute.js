@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const FacultyController = require('../controllers/FaculityController');
+const FacultyController = require('../controllers/FaculityController'); 
 
 router.post('/', FacultyController.create);
 router.get('/', FacultyController.getAll);

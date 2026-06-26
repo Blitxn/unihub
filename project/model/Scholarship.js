@@ -2,40 +2,40 @@ const pool = require('../database/database');
 
 class Scholarship {
   static async create(scholarshipData) {
-    const { name, amount, requirements, university_id } = scholarshipData;
+    const { name, provider, amount, eligibitily, deadline, type, university_id } = scholarshipData;
     const [result] = await pool.query(
-      'INSERT INTO scholarships (name, amount, requirements, university_id) VALUES (?, ?, ?, ?)',
-      [name, amount, requirements, university_id]
+      'INSERT INTO Scholarship (name, provider, amount, eligibitily, deadline, type, uni_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, provider, amount, eligibitily, deadline, type, university_id]
     );
     return result;
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM scholarships WHERE id = ?', [id]);
+    const [rows] = await pool.query('SELECT * FROM Scholarship WHERE id = ?', [id]);
     return rows[0];
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM scholarships');
+    const [rows] = await pool.query('SELECT * FROM Scholarship');
     return rows;
   }
 
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query('SELECT * FROM scholarships WHERE university_id = ?', [universityId]);
+    const [rows] = await pool.query('SELECT * FROM Scholarship WHERE uni_id = ?', [universityId]);
     return rows;
   }
 
   static async update(id, scholarshipData) {
-    const { name, amount, requirements, university_id } = scholarshipData;
+    const { name, provider, amount, eligibitily, deadline, type, university_id } = scholarshipData;
     const [result] = await pool.query(
-      'UPDATE scholarships SET name = ?, amount = ?, requirements = ?, university_id = ? WHERE id = ?',
-      [name, amount, requirements, university_id, id]
+      'UPDATE Scholarship SET name = ?, provider = ?, amount = ?, eligibitily = ?, deadline = ?, type = ?, uni_id = ? WHERE id = ?',
+      [name, provider, amount, eligibitily, deadline, type, university_id, id]
     );
     return result;
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM scholarships WHERE id = ?', [id]);
+    const [result] = await pool.query('DELETE FROM Scholarship WHERE id = ?', [id]);
     return result;
   }
 }

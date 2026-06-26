@@ -1,18 +1,15 @@
-const pool = require('../database/database');
+const Faculty = require('../model/Faculity');
 
 class FacultyController {
   static async create(req, res) {
     try {
-      const { name, description, university_id } = req.body;
+      const { name, university_id } = req.body;
 
       if (!name || !university_id) {
         return res.status(400).json({ message: 'Name and university_id are required' });
       }
 
-      const [result] = await pool.query(
-        'INSERT INTO faculties (name, description, university_id) VALUES (?, ?, ?)',
-        [name, description, university_id]
-      );
+      const result = await Faculty.create({ name, university_id });
       res.status(201).json({ message: 'Faculty created successfully', facultyId: result.insertId });
     } catch (error) {
       res.status(500).json({ message: 'Error creating faculty', error: error.message });
@@ -21,7 +18,7 @@ class FacultyController {
 
   static async getAll(req, res) {
     try {
-      const [faculties] = await pool.query('SELECT * FROM faculties');
+      const faculties = await Faculty.getAll();
       res.status(200).json(faculties);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching faculties', error: error.message });
@@ -31,13 +28,13 @@ class FacultyController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const [faculties] = await pool.query('SELECT * FROM faculties WHERE id = ?', [id]);
+      const faculty = await Faculty.findById(id);
 
-      if (faculties.length === 0) {
+      if (!faculty) {
         return res.status(404).json({ message: 'Faculty not found' });
       }
 
-      res.status(200).json(faculties[0]);
+      res.status(200).json(faculty);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching faculty', error: error.message });
     }
@@ -46,7 +43,7 @@ class FacultyController {
   static async getByUniversity(req, res) {
     try {
       const { universityId } = req.params;
-      const [faculties] = await pool.query('SELECT * FROM faculties WHERE university_id = ?', [universityId]);
+      const faculties = await Faculty.getByUniversity(universityId);
       res.status(200).json(faculties);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching faculties', error: error.message });
@@ -56,14 +53,14 @@ class FacultyController {
   static async update(req, res) {
     try {
       const { id } = req.params;
-      const { name, description, university_id } = req.body;
+      const { name, university_id } = req.body;
 
-      const [faculties] = await pool.query('SELECT * FROM faculties WHERE id = ?', [id]);
-      if (faculties.length === 0) {
+      const faculty = await Faculty.findById(id);
+      if (!faculty) {
         return res.status(404).json({ message: 'Faculty not found' });
       }
 
-      await pool.query('UPDATE faculties SET name = ?, description = ?, university_id = ? WHERE id = ?', [name, description, university_id, id]);
+      await Faculty.update(id, { name, university_id });
       res.status(200).json({ message: 'Faculty updated successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Error updating faculty', error: error.message });
@@ -73,13 +70,13 @@ class FacultyController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const [faculties] = await pool.query('SELECT * FROM faculties WHERE id = ?', [id]);
+      const faculty = await Faculty.findById(id);
 
-      if (faculties.length === 0) {
+      if (!faculty) {
         return res.status(404).json({ message: 'Faculty not found' });
       }
 
-      await pool.query('DELETE FROM faculties WHERE id = ?', [id]);
+      await Faculty.delete(id);
       res.status(200).json({ message: 'Faculty deleted successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Error deleting faculty', error: error.message });
