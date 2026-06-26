@@ -1,0 +1,135 @@
+.scholarships-page {
+    width: 100%;
+    min-height: 100vh;
+    background: #f0f1f5;
+    font-family: 'Inter', sans-serif;
+}
+
+.scholarships-page .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 80px;
+    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+}
+
+.scholarships-page .logo {
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    color: #ffffff;
+}
+
+.scholarships-page .nav {
+    display: flex;
+    gap: 56px;
+}
+
+.scholarships-page .nav-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+.scholarships-page .nav-link:hover,
+.scholarships-page .nav-link.active {
+    opacity: 1;
+    font-weight: 600;
+}
+
+.scholarships-hero {
+    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+    padding: 16px 80px 56px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.scholarships-hero h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.scholarships-hero p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.scholarships-list {
+    padding: 48px 80px 64px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.scholarship-row-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 26px 28px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.scholarship-row-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+}
+
+.scholarship-row-badge {
+    display: inline-block;
+    background: #5566f5;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.scholarship-row-badge.partial {
+    background: #f59e0b;
+}
+
+.scholarship-row-card h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+}
+
+.scholarship-row-provider {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 16px;
+}
+
+.scholarship-row-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: #444;
+}
+
+.scholarship-row-meta strong {
+    color: #1a1a2e;
+    font-weight: 600;
+}
+
+@media (max-width: 700px) {
+    .scholarships-page .header,
+    .scholarships-hero,
+    .scholarships-list {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .scholarships-page .nav {
+        gap: 20px;
+    }
+}

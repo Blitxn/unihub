@@ -1,0 +1,244 @@
+/* Save this inside src/login.css */
+
+/* ── MODAL OVERLAY WRAPPER ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(19, 20, 59, 0.65); /* Semi-transparent dark blue backdrop */
+  backdrop-filter: blur(4px);         /* Optional glass-blur effect */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;                      /* Keeps it on top of absolutely everything */
+  animation: overlayFade 0.25s ease;
+}
+
+/* ── Card Shell ── */
+.card {
+  position: relative;                 /* Crucial for anchoring a close button */
+  display: flex;
+  width: 860px;
+  min-height: 520px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.3);
+  background: #f0f2f8;
+  animation: cardPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Close Button Target ── */
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  color: #aab0c0;
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.2s;
+}
+.modal-close-btn:hover {
+  color: #1a1a2e;
+}
+
+/* Animations */
+@keyframes overlayFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cardPop { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ── Left Panel ── */
+.panel-left {
+  width: 42%;
+  background: #5b8af5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 36px 36px 36px;
+}
+
+.panel-left__top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand-title {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.15;
+}
+
+.brand-tagline {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.90);
+  font-weight: 400;
+}
+
+.bear-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 24px 0 16px;
+}
+
+.bear-img {
+  width: 220px; /* Sized perfectly for the modal layout containment */
+  height: 220px;
+  object-fit: contain;
+}
+
+.signup-prompt {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.80);
+  text-align: center;
+}
+
+.signup-prompt a {
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.signup-prompt a:hover { text-decoration: underline; }
+
+/* ── Right Panel ── */
+.panel-right {
+  width: 58%;
+  background: #f0f2f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 52px;
+}
+
+.form-wrap {
+  width: 100%;
+}
+
+.form-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #1a1a2e;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.form-subtitle {
+  font-size: 0.88rem;
+  font-style: italic;
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* ── Fields ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.field label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.field input {
+  padding: 13px 16px;
+  border: 1.5px solid #dde1eb;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: #333;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.field input::placeholder { color: #aab0c0; }
+.field input:focus { border-color: #5b8af5; }
+
+/* ── Remember / Forgot row ── */
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #444;
+  cursor: pointer;
+}
+
+.remember input[type="checkbox"] {
+  accent-color: #5b8af5;
+  width: 15px;
+  height: 15px;
+}
+
+.link-blue {
+  font-size: 0.84rem;
+  color: #5b8af5;
+  text-decoration: none;
+  font-weight: 500;
+}
+.link-blue:hover { text-decoration: underline; }
+
+/* ── Login Button ── */
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background: #5b8af5;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-login:hover  { background: #4a78e8; }
+.btn-login:active { transform: scale(0.98); }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .card {
+    flex-direction: column;
+    width: 94vw;
+    min-height: unset;
+  }
+  .panel-left, .panel-right { width: 100%; }
+  .panel-left { padding: 32px 28px 24px; }
+  .panel-right { padding: 32px 28px; }
+  .bear-img { width: 120px; height: 120px; }
+}
+/* Add this to the bottom of src/login.css */
+
+.animate-fade {
+  animation: formTransitionFade 0.25s ease-in-out;
+}
+
+@keyframes formTransitionFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
