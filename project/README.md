@@ -4,7 +4,7 @@ A Node.js Express backend for a university information portal that provides data
 
 ## Features
 
-- User authentication (register/login)
+- User authentication (register/login with JWT)
 - Career management
 - University information
 - Major/Faculty management
@@ -30,12 +30,15 @@ A Node.js Express backend for a university information portal that provides data
 ## API Endpoints
 
 ### Users
-- `POST /api/users/register` - Register new user
-- `POST /api/users/login` - Login user
+- `POST /api/users/register` - Register new user and return a JWT token
+- `POST /api/users/login` - Login user and return a JWT token
+- `GET /api/users/me` - Get the current authenticated user
 - `GET /api/users` - Get all users
 - `GET /api/users/:id` - Get user by ID
 - `PUT /api/users/:id` - Update user
 - `DELETE /api/users/:id` - Delete user
+
+Use the `Authorization` header with `Bearer <token>` for protected routes.
 
 ### Careers
 - `POST /api/careers` - Create career
