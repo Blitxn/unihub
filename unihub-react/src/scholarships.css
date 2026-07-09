@@ -1,3 +1,17 @@
+/* Reset default browser margins to eliminate white side gaps */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body, #root {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
 .scholarships-page {
     width: 100%;
     min-height: 100vh;
@@ -5,12 +19,20 @@
     font-family: 'Inter', sans-serif;
 }
 
+/* Full Width Top Hero Container */
+.hero-header-bg {
+    width: 100%;
+    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+    margin: 0;
+}
+
 .scholarships-page .header {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 28px 80px;
-    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+    padding: 24px 80px;
+    background: transparent;
 }
 
 .scholarships-page .logo {
@@ -41,7 +63,7 @@
 }
 
 .scholarships-hero {
-    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+    width: 100%;
     padding: 16px 80px 56px;
     color: #ffffff;
     text-align: center;
@@ -60,7 +82,10 @@
     margin: 0 auto;
 }
 
+/* Cards Layout */
 .scholarships-list {
+    max-width: 1280px;
+    margin: 0 auto;
     padding: 48px 80px 64px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -75,6 +100,13 @@
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
+.scholarship-row-card.clickable {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .scholarship-row-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 26px rgba(0,0,0,0.1);
@@ -82,6 +114,7 @@
 
 .scholarship-row-badge {
     display: inline-block;
+    align-self: flex-start;
     background: #5566f5;
     color: #fff;
     font-size: 0.7rem;
@@ -120,6 +153,110 @@
 .scholarship-row-meta strong {
     color: #1a1a2e;
     font-weight: 600;
+}
+
+.card-footer-action {
+    margin-top: 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #5566f5;
+}
+
+/* Modal Styling */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+    animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    color: #888;
+    cursor: pointer;
+}
+
+.modal-card h2 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    background: #f8f9fc;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    margin: 16px 0;
+}
+
+.modal-divider {
+    border: 0;
+    height: 1px;
+    background: #eef0f5;
+    margin: 20px 0;
+}
+
+.modal-section {
+    margin-bottom: 20px;
+}
+
+.modal-section h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+}
+
+.modal-section ul {
+    padding-left: 20px;
+    margin: 0;
+    font-size: 0.88rem;
+    color: #444;
+}
+
+.modal-section li {
+    margin-bottom: 6px;
+}
+
+.modal-section ul.uni-list li {
+    font-weight: 600;
+    color: #2b3990;
 }
 
 @media (max-width: 700px) {

@@ -139,15 +139,17 @@ html, body {
 /* ── FILTERS ROW ── */
 .filters-row {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-top: 4px;
   width: 100%;
-  max-width: 520px;
+  max-width: 720px;
   justify-content: center;
 }
 
 .filter-select {
   flex: 1;
+  min-width: 150px;
   background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -158,7 +160,7 @@ html, body {
   outline: none;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
-  
+
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -222,7 +224,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   cursor: pointer;
 }
 
@@ -231,8 +233,16 @@ html, body {
   aspect-ratio: 4 / 3;
   background: #d5d8e0;
   border-radius: 18px;
+  overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.uni-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .uni-card:hover .uni-thumb {
@@ -240,11 +250,42 @@ html, body {
   box-shadow: 0 10px 28px rgba(0,0,0,0.13);
 }
 
-.uni-name {
-  font-size: 0.85rem;
+/* Renamed from .uni-name to avoid colliding with the info page's
+   hero-banner class of the same name — that collision was why names
+   were rendering with the wrong page's styling in both places. */
+.uni-card-name {
+  font-size: 0.95rem;
   font-weight: 700;
-  color: #2a2a3d;
+  color: #1a1a2e;
   text-align: center;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  max-width: 92%;
+  text-shadow: none;
+  transition: color 0.2s;
+}
+
+.uni-card:hover .uni-card-name {
+  color: #4a58ee;
+}
+
+.uni-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: -6px;
+}
+
+.uni-card-stars {
+  color: #f59e0b;
+  font-size: 0.88rem;
+  letter-spacing: 1px;
+}
+
+.uni-card-rating-num {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8a92a5;
 }
 
 /* ── NO RESULTS DISPLAY ── */

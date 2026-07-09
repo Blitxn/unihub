@@ -10,6 +10,7 @@ export default function Contactpage() {
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/search" className="nav-link">Universities</Link>
           <Link to="/scholarships" className="nav-link">Scholarships</Link>
+          <Link to="/career" className="nav-link">Career</Link>
           <Link to="/contact" className="nav-link active">Contact</Link>
         </nav>
       </header>

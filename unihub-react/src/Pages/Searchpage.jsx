@@ -11,8 +11,10 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMajor, setSelectedMajor] = useState('');
   const [selectedScholarship, setSelectedScholarship] = useState('');
+  const [minRating, setMinRating] = useState('');
+  const [sortBy, setSortBy] = useState('');
 
-  // ── NEW STATE: Track which university is clicked ──
+  // Track which university is clicked
   const [selectedUni, setSelectedUni] = useState(null);
 
   useEffect(() => {
@@ -30,28 +32,108 @@ export default function SearchPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // ── UPDATED: Added 'image' and 'rating' fields to all university objects ──
   const universities = [
-    { name: "Build Bright University", short: "BBU", majors: ["Business", "IT"], scholarship: "Partial", location: "Phnom Penh, Cambodia" },
-    { name: "Cambodia Academy Of Digital Technology", short: "CADT", majors: ["IT", "Engineering"], scholarship: "Full", location: "Phnom Penh, Cambodia" },
-    { name: "International University Cambodia", short: "IU", majors: ["Medicine", "Business"], scholarship: "None", location: "Phnom Penh, Cambodia" },
-    { name: "Institute Of Technology Of Cambodia", short: "ITC", majors: ["Engineering", "IT"], scholarship: "Full", location: "Phnom Penh, Cambodia" },
-    { name: "National Polytechnic Institute Of Cambodia", short: "NPIC", majors: ["Engineering"], scholarship: "Partial", location: "Phnom Penh, Cambodia" },
-    { name: "Royal University Of Agriculture Cambodia", short: "RUA", majors: ["Science"], scholarship: "None", location: "Phnom Penh, Cambodia" },
-    { name: "Royal University Of Phnom Penh", short: "RUPP", majors: ["Science", "IT", "Languages"], scholarship: "Full", location: "Phnom Penh, Cambodia" },
-    { name: "Royal University Of Fine Arts", short: "RUFA", majors: ["Arts"], scholarship: "None", location: "Phnom Penh, Cambodia" },
-    { name: "University Of Health Science", short: "UHS", majors: ["Medicine"], scholarship: "Partial", location: "Phnom Penh, Cambodia" }
+    { 
+      name: "Build Bright University", 
+      short: "BBU", 
+      majors: ["Business", "IT"], 
+      scholarship: "Partial", 
+      location: "Phnom Penh, Cambodia" ,
+      image: "/build bright.png",
+      rating: 4.2
+    }, 
+    { 
+      name: "Cambodia Academy Of Digital Technology", 
+      short: "CADT", 
+      majors: ["IT", "Engineering"], 
+      scholarship: "Full", 
+      location: "Phnom Penh, Cambodia",
+      image: "/cadt 2.png",
+      rating: 4.7
+    },
+    { 
+      name: "International University Cambodia", 
+      short: "IU", 
+      majors: ["Medicine", "Business"], 
+      scholarship: "None", 
+      location: "Phnom Penh, Cambodia",
+      image: "/iu.png",
+      rating: 3.9
+    },
+    { 
+      name: "Institute Of Technology Of Cambodia", 
+      short: "ITC", 
+      majors: ["Engineering", "IT"], 
+      scholarship: "Full", 
+      location: "Phnom Penh, Cambodia",
+      image: "/itc.png",
+      rating: 4.8
+    },
+    { 
+      name: "National Polytechnic Institute Of Cambodia", 
+      short: "NPIC", 
+      majors: ["Engineering"], 
+      scholarship: "Partial", 
+      location: "Phnom Penh, Cambodia",
+     image: "/niptic.png",
+     rating: 4.0
+    },
+    { 
+      name: "Royal University Of Agriculture Cambodia", 
+      short: "RUA", 
+      majors: ["Science"], 
+      scholarship: "None", 
+      location: "Phnom Penh, Cambodia",
+      image: "/AGRICUL.png",
+      rating: 3.7
+    },
+    { 
+      name: "Royal University Of Phnom Penh", 
+      short: "RUPP", 
+      majors: ["Science", "IT", "Languages"], 
+      scholarship: "Full", 
+      location: "Phnom Penh, Cambodia",
+      image: "/rupp.png",
+      rating: 4.6
+    },
+    { 
+      name: "Royal University Of Fine Arts", 
+      short: "RUFA", 
+      majors: ["Arts"], 
+      scholarship: "None", 
+      location: "Phnom Penh, Cambodia",
+      image: "/2016_Phnom_Penh,_Muzeum_Narodowe_Kambodży_(10).jpg.webp",
+      rating: 3.8
+    },
+    { 
+      name: "University Of Health Science", 
+      short: "UHS", 
+      majors: ["Medicine"], 
+      scholarship: "Partial", 
+      location: "Phnom Penh, Cambodia",
+      image: "/University-Of-Health-Sciences.png",
+      rating: 4.4
+    }
   ];
 
-  const filteredUniversities = universities.filter(uni => {
-    const matchesSearch = searchQuery === '' || 
-      uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      uni.short.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesMajor = selectedMajor === '' || uni.majors.includes(selectedMajor);
-    const matchesScholarship = selectedScholarship === '' || uni.scholarship === selectedScholarship;
-    return matchesSearch && matchesMajor && matchesScholarship;
-  });
+  const filteredUniversities = universities
+    .filter(uni => {
+      const matchesSearch = searchQuery === '' || 
+        uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        uni.short.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesMajor = selectedMajor === '' || uni.majors.includes(selectedMajor);
+      const matchesScholarship = selectedScholarship === '' || uni.scholarship === selectedScholarship;
+      const matchesRating = minRating === '' || uni.rating >= parseFloat(minRating);
+      return matchesSearch && matchesMajor && matchesScholarship && matchesRating;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'rating-high') return b.rating - a.rating;
+      if (sortBy === 'rating-low') return a.rating - b.rating;
+      return 0; // no sort = keep original order
+    });
 
-  // ── IF A UNIVERSITY IS SELECTED, RENDER THE INFO PAGE INSTEAD ──
+  // IF A UNIVERSITY IS SELECTED, RENDER THE INFO PAGE INSTEAD
   if (selectedUni) {
     return (
       <UniversityInfoPage 
@@ -70,6 +152,7 @@ export default function SearchPage() {
             <Link to="/" className="nav-link">Home</Link>
             <Link to="/search" className="nav-link active">Universities</Link>
             <Link to="/scholarships" className="nav-link">Scholarships</Link>
+            <Link to="/career" className="nav-link">Career</Link>
             <Link to="/contact" className="nav-link">Contact</Link>
           </nav>
           
@@ -133,6 +216,19 @@ export default function SearchPage() {
               <option value="Partial">Partial Scholarship</option>
               <option value="None">No Scholarship</option>
             </select>
+
+            <select className="filter-select" value={minRating} onChange={(e) => setMinRating(e.target.value)}>
+              <option value="">All Ratings</option>
+              <option value="4.5">4.5★ & up</option>
+              <option value="4">4★ & up</option>
+              <option value="3.5">3.5★ & up</option>
+            </select>
+
+            <select className="filter-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="">Sort: Default</option>
+              <option value="rating-high">Rating: High to Low</option>
+              <option value="rating-low">Rating: Low to High</option>
+            </select>
           </div>
 
           <div className="keywords-row">
@@ -147,10 +243,22 @@ export default function SearchPage() {
         {filteredUniversities.length > 0 ? (
           <div className="cards-grid">
             {filteredUniversities.map((uni, idx) => (
-              // Clicking here updates our state variable
               <div key={idx} className="uni-card" onClick={() => setSelectedUni(uni)}>
-                <div className="uni-thumb"></div>
-                <p className="uni-name">{uni.name}</p>
+                {/* ── UPDATED: Replaced empty div with img renderer ── */}
+                <div className="uni-thumb" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img 
+                    src={uni.image || 'https://via.placeholder.com/400x300?text=No+Image'} 
+                    alt={`${uni.short} campus`} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+                <p className="uni-card-name">{uni.name}</p>
+                <div className="uni-card-rating">
+                  <span className="uni-card-stars">
+                    {'★'.repeat(Math.round(uni.rating))}{'☆'.repeat(5 - Math.round(uni.rating))}
+                  </span>
+                  <span className="uni-card-rating-num">{uni.rating.toFixed(1)}</span>
+                </div>
               </div>
             ))}
           </div>

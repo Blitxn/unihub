@@ -1,24 +1,49 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import '../login.css'; 
+ import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../login.css';
 
-// FIXED: Changed isOpen to open to match App.jsx
-function LoginModal({ open, onClose }) {
+const ADMIN_EMAIL = "admin@unihub.edu";
+const ADMIN_PASSWORD = "admin123";
+
+function LoginModal({ open, onClose, onLoginSuccess, pendingPath }) {
   const [modalView, setModalView] = useState('login');
-  const navigate = useNavigate(); 
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const navigate = useNavigate();
 
-  // FIXED: Changed !isOpen to !open
   if (!open) return null;
 
   const handleClose = () => {
     setModalView('login');
+    setLoginEmail('');
+    setLoginPassword('');
+    setLoginError('');
     onClose();
   };
 
-  const handleSubmitSuccess = (e) => {
+  const handleLoginSubmit = (e) => {
     e.preventDefault();
-    handleClose(); 
-    navigate('/search'); 
+
+    const isAdmin =
+      loginEmail.trim().toLowerCase() === ADMIN_EMAIL &&
+      loginPassword === ADMIN_PASSWORD;
+
+    onLoginSuccess();
+    handleClose();
+
+    if (isAdmin) {
+      navigate('/admin');
+    } else {
+      navigate(pendingPath || '/search');
+    }
+  };
+
+  const handleSignupSubmit = (e) => {
+    e.preventDefault();
+    onLoginSuccess();
+    handleClose();
+    navigate(pendingPath || '/search');
   };
 
   return (
@@ -26,18 +51,17 @@ function LoginModal({ open, onClose }) {
       <div className="card" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close-btn" onClick={handleClose}>&times;</button>
 
-        {/* LEFT PANEL */}
         <div className="panel-left">
           <div className="panel-left__top">
             <h1 className="brand-title">Welcome to<br/>Unihub</h1>
             <p className="brand-tagline">
-              {modalView === 'login' 
-                ? 'Discover university. Shape your goal.' 
+              {modalView === 'login'
+                ? 'Discover university. Shape your goal.'
                 : 'Join our community. Track your educational pathway.'}
             </p>
           </div>
           <div className="bear-wrap">
-            <img src="/bear nobg.png" alt="Unihub mascot bear" className="bear-img" />
+            <img src="/bear.png" alt="Unihub mascot bear" className="bear-img" />
           </div>
           <p className="signup-prompt">
             {modalView === 'login' ? (
@@ -48,21 +72,40 @@ function LoginModal({ open, onClose }) {
           </p>
         </div>
 
-        {/* RIGHT PANEL */}
         <div className="panel-right">
           {modalView === 'login' ? (
-            <form className="form-wrap animate-fade" onSubmit={handleSubmitSuccess}>
+            <form className="form-wrap animate-fade" onSubmit={handleLoginSubmit}>
               <h2 className="form-title">Welcome Back!</h2>
               <p className="form-subtitle">Continue your path to academic success.</p>
 
               <div className="field">
                 <label htmlFor="login-email">Email</label>
-                <input id="login-email" type="email" placeholder="Enter your email address" required />
+                <input
+                  id="login-email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                />
               </div>
               <div className="field">
                 <label htmlFor="login-password">Password</label>
-                <input id="login-password" type="password" placeholder="Enter your password" required />
+                <input
+                  id="login-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                />
               </div>
+
+              {loginError && (
+                <p style={{ color: '#ff4d4f', fontSize: '0.82rem', marginBottom: '12px' }}>
+                  {loginError}
+                </p>
+              )}
 
               <div className="form-row">
                 <label className="remember">
@@ -74,7 +117,7 @@ function LoginModal({ open, onClose }) {
               <button type="submit" className="btn-login">Login</button>
             </form>
           ) : (
-            <form className="form-wrap animate-fade" onSubmit={handleSubmitSuccess}>
+            <form className="form-wrap animate-fade" onSubmit={handleSignupSubmit}>
               <h2 className="form-title">Create Account</h2>
               <p className="form-subtitle">Start your higher education search journey.</p>
 

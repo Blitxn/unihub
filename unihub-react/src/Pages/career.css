@@ -1,0 +1,343 @@
+/* ─────────────────────────────────────────────
+   UNIHUB — Career Page Only
+   ───────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+.career-page {
+    width: 100%;
+    min-height: 100vh;
+    background: #f0f1f5;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── Navbar Header ── */
+.career-page .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 28px 80px;
+    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+}
+
+.career-page .logo {
+    position: absolute;
+    left: 80px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    color: #ffffff;
+}
+
+.career-page .nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 56px;
+}
+
+.career-page .nav-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    opacity: 0.85;
+    position: relative;
+    padding-bottom: 6px;
+    transition: opacity 0.2s;
+}
+
+.career-page .nav-link:hover {
+    opacity: 1;
+}
+
+/* Active Navigation Underline */
+.career-page .nav-link.active {
+    opacity: 1;
+    font-weight: 700;
+}
+
+.career-page .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 2px;
+}
+
+/* ── Hero Banner ── */
+.career-hero {
+    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+    padding: 16px 80px 56px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.career-hero h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.career-hero p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+/* ── Major Cards Grid ── */
+.career-majors-grid {
+    padding: 48px 80px 64px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.career-major-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.career-major-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.1);
+}
+
+.career-major-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.career-major-card h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+}
+
+.career-major-range {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #5566f5;
+    margin-bottom: 4px;
+}
+
+.career-major-roles {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* ── Detail View Hero ── */
+.career-detail-hero {
+    background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
+    padding: 20px 80px 40px;
+    color: #ffffff;
+}
+
+.career-back-link {
+    background: rgba(255, 255, 255, 0.18);
+    border: none;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background 0.2s;
+}
+
+.career-back-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.career-detail-title {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.career-detail-icon {
+    font-size: 3rem;
+}
+
+.career-detail-title h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.career-detail-title p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 480px;
+}
+
+/* ── Detail Content Sections ── */
+.career-detail-content {
+    padding: 40px 80px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+}
+
+.career-section h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 18px;
+}
+
+/* Job Roles Grid */
+.career-jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.career-job-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 22px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.career-job-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+}
+
+.career-salary {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #5566f5;
+    margin-bottom: 10px;
+}
+
+.career-demand-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: #ffffff;
+}
+
+.career-demand-badge.demand-high {
+    background: #22c55e;
+}
+
+.career-demand-badge.demand-medium {
+    background: #f59e0b;
+}
+
+.career-demand-badge.demand-low {
+    background: #9ca3af;
+}
+
+/* Companies Grid */
+.career-companies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.career-company-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.career-company-card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+}
+
+.career-company-card p {
+    font-size: 0.82rem;
+    color: #888;
+}
+
+/* Programs List */
+.career-programs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.career-program-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    text-decoration: none;
+    color: #1a1a2e;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.career-program-row:hover {
+    transform: translateX(4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.career-program-uni {
+    font-weight: 700;
+    font-size: 0.92rem;
+}
+
+.career-program-faculty {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.career-program-arrow {
+    color: #5566f5;
+    font-weight: 700;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+    .career-page .header {
+        justify-content: space-between;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .career-page .logo {
+        position: static;
+    }
+    .career-hero,
+    .career-majors-grid,
+    .career-detail-hero,
+    .career-detail-content {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .career-page .nav {
+        gap: 20px;
+    }
+    .career-program-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}

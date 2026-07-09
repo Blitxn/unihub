@@ -5,15 +5,19 @@
     font-family: 'Inter', sans-serif;
 }
 
+/* ── Navbar Header ── */
 .contact-page .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center; /* Centers navigation inside header */
+    position: relative;     /* Allows absolute positioning for logo */
     padding: 28px 80px;
     background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
 }
 
 .contact-page .logo {
+    position: absolute;      /* Pins logo to the left side */
+    left: 80px;
     font-size: 1.4rem;
     font-weight: 900;
     letter-spacing: 0.06em;
@@ -22,6 +26,8 @@
 
 .contact-page .nav {
     display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 56px;
 }
 
@@ -31,15 +37,33 @@
     font-size: 1rem;
     font-weight: 500;
     opacity: 0.85;
+    position: relative;
+    padding-bottom: 6px;
     transition: opacity 0.2s;
 }
 
-.contact-page .nav-link:hover,
-.contact-page .nav-link.active {
+.contact-page .nav-link:hover {
     opacity: 1;
-    font-weight: 600;
 }
 
+/* Active Navigation Underline */
+.contact-page .nav-link.active {
+    opacity: 1;
+    font-weight: 700;
+}
+
+.contact-page .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: #ffffff;
+    border-radius: 2px;
+}
+
+/* ── Hero Banner ── */
 .contact-hero {
     background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
     padding: 16px 80px 56px;
@@ -60,6 +84,7 @@
     margin: 0 auto;
 }
 
+/* ── Contact Cards ── */
 .contact-cards {
     padding: 48px 80px 64px;
     display: grid;
@@ -107,8 +132,16 @@
     line-height: 1.5;
 }
 
+/* ── Responsive ── */
 @media (max-width: 700px) {
-    .contact-page .header,
+    .contact-page .header {
+        justify-content: space-between;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+    .contact-page .logo {
+        position: static;
+    }
     .contact-hero,
     .contact-cards {
         padding-left: 24px;

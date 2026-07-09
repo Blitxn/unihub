@@ -1,13 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import '../info.css'; // Fits cleanly into your stylesheet rules
+
+// Drop the actual school logo file into your project's /public folder at
+// public/logos/bbu-logo.png (create the "logos" folder if it doesn't exist yet).
+// A plain string path like this is resolved at runtime, not build time, so the
+// app won't crash even if the file isn't there yet — it'll just fall back to
+// the initials badge below via the onError handler.
+const bbuLogo = '/logos/bbu-logo.png';
 
 export default function UniversityInfoPage({ university, onBack }) {
   // Tab handling state
   const [activeTab, setActiveTab] = useState('programs');
-  
+
   // Profile Dropdown Subsystem state
   const [dropdownActive, setDropdownActive] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Logo load-error fallback state
+  const [logoFailed, setLogoFailed] = useState(false);
 
   // Reviews Dashboard Stack state (pre-populating one review matching your design context)
   const [reviews, setReviews] = useState([
@@ -18,7 +29,7 @@ export default function UniversityInfoPage({ university, onBack }) {
       date: "March 12, 2026"
     }
   ]);
-  
+
   // Review Entry Form states
   const [reviewerName, setReviewerName] = useState('');
   const [reviewText, setReviewText] = useState('');
@@ -35,6 +46,20 @@ export default function UniversityInfoPage({ university, onBack }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Derive initials for the fallback crest (e.g. "Build Bright University" -> "BB")
+  const initials = (university.short || university.name || 'U')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase();
+
+  // Prefer a logo URL coming from the university's own data; otherwise fall back
+  // to the locally bundled asset above so a logo always shows up.
+  const logoSrc = university.logo || bbuLogo;
+  const hasLogo = Boolean(logoSrc) && !logoFailed;
 
   // Post Review Submit Handler
   const handlePostReview = () => {
@@ -61,7 +86,7 @@ export default function UniversityInfoPage({ university, onBack }) {
 
     // Prepend new review to the top of the stack
     setReviews([newReview, ...reviews]);
-    
+
     // Clear Form Fields
     setReviewerName('');
     setReviewText('');
@@ -76,10 +101,11 @@ export default function UniversityInfoPage({ university, onBack }) {
         <nav className="nav">
           <span onClick={onBack} className="nav-link" style={{ cursor: 'pointer' }}>Home</span>
           <span onClick={onBack} className="nav-link active" style={{ cursor: 'pointer' }}>Universities</span>
-          <a href="#scholarships" className="nav-link">Scholarships</a>
-          <a href="#contact" className="nav-link">Contact</a>
+          <Link to="/scholarships" className="nav-link">Scholarships</Link>
+          <Link to="/career" className="nav-link">Career</Link>
+          <Link to="/contact" className="nav-link">Contact</Link>
         </nav>
-        
+
         <div className="avatar-container" ref={dropdownRef}>
           <div className="avatar" onClick={() => setDropdownActive(!dropdownActive)}>
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -118,14 +144,25 @@ export default function UniversityInfoPage({ university, onBack }) {
           ← Back to search
         </button>
         <div className="banner-img">
-          {/* Solid color block backup if university photo source variations are empty */}
-          <div style={{ background: '#3b4ce0', width: '100%', height: '100%' }} />
+          {university.banner ? (
+            <img src={university.banner} alt={`${university.name} campus`} />
+          ) : (
+            <div className="banner-fallback" />
+          )}
         </div>
-        
+
         <div className="uni-identity">
           <div className="uni-logo">
             <div className="crest-placeholder">
-              <div style={{ background: '#5566f5', width: '100%', height: '100%', borderRadius: '50%' }} />
+              {hasLogo ? (
+                <img
+                  src={logoSrc}
+                  alt={`${university.name} logo`}
+                  onError={() => setLogoFailed(true)}
+                />
+              ) : (
+                <span className="crest-initials">{initials}</span>
+              )}
             </div>
           </div>
           <div>
@@ -145,7 +182,7 @@ export default function UniversityInfoPage({ university, onBack }) {
 
       {/* ── CONTENT SECTION ── */}
       <div className="content-section">
-        
+
         {/* PROGRAMS PANEL */}
         <div className={`tab-panel ${activeTab === 'programs' ? 'active' : ''}`}>
           <h2 className="section-title">Available Programs</h2>
@@ -211,7 +248,7 @@ export default function UniversityInfoPage({ university, onBack }) {
         {/* REVIEWS PANEL */}
         <div className={`tab-panel ${activeTab === 'reviews' ? 'active' : ''}`}>
           <h2 className="section-title">Student Reviews</h2>
-          
+
           {/* Review Input Box Form */}
           <div className="review-form">
             <h3 className="form-title">Share Your Experience</h3>
@@ -219,7 +256,7 @@ export default function UniversityInfoPage({ university, onBack }) {
               <span className="star-label">Your rating:</span>
               <div className="stars">
                 {[1, 2, 3, 4, 5].map((val) => (
-                  <span 
+                  <span
                     key={val}
                     className={`star ${val <= starRating ? 'selected' : ''} ${val <= hoverRating ? 'hovered' : ''}`}
                     onMouseEnter={() => setHoverRating(val)}
@@ -231,15 +268,15 @@ export default function UniversityInfoPage({ university, onBack }) {
                 ))}
               </div>
             </div>
-            <input 
-              type="text" 
-              className="review-input" 
-              placeholder="Your name" 
+            <input
+              type="text"
+              className="review-input"
+              placeholder="Your name"
               value={reviewerName}
               onChange={(e) => setReviewerName(e.target.value)}
             />
-            <textarea 
-              className="review-textarea" 
+            <textarea
+              className="review-textarea"
               placeholder="Write your review here..."
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
