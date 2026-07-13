@@ -11,7 +11,7 @@ class User {
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    const [rows] = await pool.query('SELECT * FROM users WHERE u_id = ?', [id]);
     return rows[0];
   }
 
@@ -28,14 +28,14 @@ class User {
   static async update(id, userData) {
     const { name, email, role } = userData;
     const [result] = await pool.query(
-      'UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?',
+      'UPDATE users SET name = ?, email = ?, role = ? WHERE u_id = ?',
       [name, email, role, id]
     );
     return result;
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    const [result] = await pool.query('DELETE FROM users WHERE u_id = ?', [id]);
     return result;
   }
 }

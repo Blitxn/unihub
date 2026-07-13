@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const TuitionFeeController = require('../controllers/TuitionFeeController');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
-router.post('/', TuitionFeeController.create);
-router.get('/', TuitionFeeController.getAll);
-router.get('/:id', TuitionFeeController.getById);
-router.get('/major/:majorId', TuitionFeeController.getByMajor);
-router.get('/university/:universityId', TuitionFeeController.getByUniversity);
-router.put('/:id', TuitionFeeController.update);
-router.delete('/:id', TuitionFeeController.delete);
+router.post('/', authenticateToken, TuitionFeeController.create);
+router.get('/', authenticateToken, TuitionFeeController.getAll);
+router.get('/major/:majorId', authenticateToken, TuitionFeeController.getByMajor);
+router.get('/university/:universityId', authenticateToken, TuitionFeeController.getByUniversity);
+router.get('/:id', authenticateToken, TuitionFeeController.getById);
+router.put('/:id', authenticateToken, TuitionFeeController.update);
+router.delete('/:id', authenticateToken, TuitionFeeController.delete);
 
 module.exports = router;

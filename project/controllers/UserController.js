@@ -1,11 +1,51 @@
 const User = require('../model/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'unihub_jwt_secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
+
+function sanitizeUser(user) {
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: user.u_id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    created_at: user.created_at,
+    updated_at: user.updated_at,
+  };
+}
+
+function createToken(user) {
+  return jwt.sign(
+    {
+      id: user.u_id,
+      email: user.email,
+    },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+}
+
+function setTokenCookie(res, token) {
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+}
 
 class UserController {
   static async register(req, res) {
     try {
       const { name, email, password, role } = req.body;
-      
-      if (!name || !email || !password) {
+
+      if (!name || !email || !password || !role) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
@@ -14,8 +54,19 @@ class UserController {
         return res.status(400).json({ message: 'Email already registered' });
       }
 
-      const result = await User.create({ name, email, password, role });
-      res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const result = await User.create({ name, email, password: hashedPassword, role });
+
+      const createdUser = await User.findById(result.insertId);
+      const token = createToken(createdUser);
+
+      setTokenCookie(res, token);
+
+      res.status(201).json({
+        message: 'User registered successfully',
+        token,
+        user: sanitizeUser(createdUser),
+      });
     } catch (error) {
       res.status(500).json({ message: 'Error registering user', error: error.message });
     }
@@ -34,11 +85,28 @@ class UserController {
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
-      if (user.password !== password) {
+      const passwordMatches = await bcrypt.compare(password, user.password);
+      const legacyPasswordMatches = user.password === password;
+
+      if (!passwordMatches && !legacyPasswordMatches) {
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
-      res.status(200).json({ message: 'Login successful', user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+      if (legacyPasswordMatches && !passwordMatches) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await User.updatePassword(user.u_id, hashedPassword);
+        user.password = hashedPassword;
+      }
+
+      const token = createToken(user);
+
+      setTokenCookie(res, token);
+
+      res.status(200).json({
+        message: 'Login successful',
+        token,
+        user: sanitizeUser(user),
+      });
     } catch (error) {
       res.status(500).json({ message: 'Error logging in', error: error.message });
     }
@@ -47,7 +115,7 @@ class UserController {
   static async getAll(req, res) {
     try {
       const users = await User.getAll();
-      res.status(200).json(users);
+      res.status(200).json(users.map(sanitizeUser));
     } catch (error) {
       res.status(500).json({ message: 'Error fetching users', error: error.message });
     }
@@ -57,12 +125,12 @@ class UserController {
     try {
       const { id } = req.params;
       const user = await User.findById(id);
-      
+
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      res.status(200).json(user);
+      res.status(200).json(sanitizeUser(user));
     } catch (error) {
       res.status(500).json({ message: 'Error fetching user', error: error.message });
     }
@@ -89,7 +157,7 @@ class UserController {
     try {
       const { id } = req.params;
       const user = await User.findById(id);
-      
+
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }

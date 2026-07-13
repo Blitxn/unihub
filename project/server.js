@@ -17,7 +17,9 @@ const majorRoute = require('./routes/majorRoute');
 const scholarshipRoute = require('./routes/scholarshipRoute');
 const tuitionFeeRoute = require('./routes/tuitionFeeRoute');
 const facultyRoute = require('./routes/facultyRoute');
+const cookieParser = require('cookie-parser');
 
+app.use(cookieParser());  
 app.use('/api/users', userRoute);
 app.use('/api/careers', careerRoute);
 app.use('/api/universities', universityRoute);
