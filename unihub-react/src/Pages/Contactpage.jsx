@@ -1,7 +1,42 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../contact.css";
 
 export default function Contactpage() {
+  const navigate = useNavigate();
+  const [dropdownActive, setDropdownActive] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Logged-in user, read from localStorage (set by LoginModal on login/register)
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        setCurrentUser(JSON.parse(stored));
+      } catch (e) {
+        console.error('Could not parse stored user', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownActive(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+    setDropdownActive(false);
+    navigate('/');
+  };
+
   return (
     <div className="contact-page">
       <header className="header">
@@ -13,6 +48,30 @@ export default function Contactpage() {
           <Link to="/career" className="nav-link">Career</Link>
           <Link to="/contact" className="nav-link active">Contact</Link>
         </nav>
+
+        <div className="avatar-container" ref={dropdownRef}>
+          <div className="avatar" onClick={() => setDropdownActive(!dropdownActive)}>
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.2)"/>
+              <circle cx="18" cy="14" r="6" fill="rgba(255,255,255,0.85)"/>
+              <ellipse cx="18" cy="30" rx="10" ry="6" fill="rgba(255,255,255,0.85)"/>
+            </svg>
+          </div>
+
+          <div className={`profile-dropdown ${dropdownActive ? 'active' : ''}`}>
+            <div className="dropdown-header">
+              <p className="user-name">{currentUser?.name || 'Unihub User'}</p>
+              <p className="user-email">{currentUser?.email || 'student@unihub.edu'}</p>
+            </div>
+            <div className="dropdown-divider"></div>
+            <a href="#profile" className="dropdown-item">My Profile</a>
+            <a href="#settings" className="dropdown-item">Account Settings</a>
+            <div className="dropdown-divider"></div>
+            <span onClick={handleLogout} className="dropdown-item logout-item" style={{ cursor: 'pointer' }}>
+              Log Out
+            </span>
+          </div>
+        </div>
       </header>
 
       <div className="contact-hero">

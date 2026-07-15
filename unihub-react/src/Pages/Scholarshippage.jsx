@@ -1,116 +1,81 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api"; // adjust path if your axios instance lives elsewhere
 import "../scholarships.css";
 
-const SCHOLARSHIPS = [
-  {
-    id: "govt-merit",
-    name: "Government Merit Scholarship",
-    provider: "Ministry of Education",
-    type: "Full Scholarship",
-    amount: "100% Tuition",
-    deadline: "August 30, 2026",
-    level: "Undergraduate",
-    universities: [
-      "Royal University Of Phnom Penh",
-      "Institute Of Technology Of Cambodia",
-      "Cambodia Academy Of Digital Technology",
-      "University Of Health Science",
-      "Build Bright University",
-      "International University Cambodia",
-      "National Polytechnic Institute Of Cambodia",
-      "Royal University Of Agriculture Cambodia",
-      "Royal University Of Fine Arts"
-    ],
-    requirements: [
-      "Grade A or B on High School National Examination (Bac II)",
-      "Cambodian Citizenship",
-      "Recommendation letter from High School Principal",
-      "Passed official university entry assessment (where applicable)"
-    ],
-  },
-  {
-    id: "rupp-ex",
-    name: "RUPP Excellence Award",
-    provider: "Royal University of Phnom Penh",
-    type: "Partial Scholarship",
-    amount: "50% Tuition",
-    deadline: "September 15, 2026",
-    level: "All levels",
-    universities: ["Royal University Of Phnom Penh"],
-    requirements: [
-      "Minimum Bac II Grade C or higher",
-      "Passed RUPP Entrance Examination",
-      "Maintain a 3.0+ GPA during studies"
-    ],
-  },
-  {
-    id: "cadt-grant",
-    name: "CADT Tech Talent Grant",
-    provider: "Cambodia Academy of Digital Technology",
-    type: "Full Scholarship",
-    amount: "100% Tuition",
-    deadline: "July 20, 2026",
-    level: "Undergraduate",
-    universities: ["Cambodia Academy Of Digital Technology"],
-    requirements: [
-      "Pass CADT Entrance Exam (Math, Logic & English)",
-      "Demonstrate high aptitude in Computer Science or Telecoms",
-      "Successful interview performance with CADT faculty"
-    ],
-  },
-  {
-    id: "itc-eng",
-    name: "ITC Engineering Scholarship",
-    provider: "Institute of Technology of Cambodia",
-    type: "Full Scholarship",
-    amount: "100% Tuition + Stipend",
-    deadline: "August 5, 2026",
-    level: "Undergraduate",
-    universities: ["Institute Of Technology Of Cambodia"],
-    requirements: [
-      "Bac II Math/Physics Focus (Grade A or B)",
-      "Pass ITC Entrance Contest",
-      "Maintain minimum 3.0 GPA every academic semester"
-    ],
-  },
-  {
-    id: "women-stem",
-    name: "Women in STEM Award",
-    provider: "National Polytechnic Institute",
-    type: "Partial Scholarship",
-    amount: "40% Tuition",
-    deadline: "September 1, 2026",
-    level: "All levels",
-    universities: [
-      "National Polytechnic Institute Of Cambodia",
-      "Institute Of Technology Of Cambodia",
-      "Cambodia Academy Of Digital Technology"
-    ],
-    requirements: [
-      "Female applicants pursuing engineering or digital technology degrees",
-      "High School Diploma or equivalent credential",
-      "Short essay on personal goals in STEM"
-    ],
-  },
-  {
-    id: "health-sci",
-    name: "Health Sciences Future Leaders Grant",
-    provider: "University of Health Science",
-    type: "Partial Scholarship",
-    amount: "60% Tuition",
-    deadline: "October 10, 2026",
-    level: "Undergraduate",
-    universities: ["University Of Health Science"],
-    requirements: [
-      "Pass the National Medical Entrance Examination",
-      "Commitment to rural health clinic placement post-graduation"
-    ],
-  },
-];
-
 export default function Scholarshipspage() {
+  const navigate = useNavigate();
+  const [dropdownActive, setDropdownActive] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Logged-in user, read from localStorage (set by LoginModal on login/register)
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        setCurrentUser(JSON.parse(stored));
+      } catch (e) {
+        console.error('Could not parse stored user', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownActive(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+    setDropdownActive(false);
+    navigate('/');
+  };
+
+  const [scholarships, setScholarships] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
+
+  useEffect(() => {
+    const fetchScholarships = async () => {
+      try {
+        const res = await api.get('/api/scholarships/details');
+        setScholarships(res.data);
+      } catch (error) {
+        console.error('Error fetching scholarships:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchScholarships();
+  }, []);
+
+  // Helper: format the "type" column ("Full" / "Partial") into display text
+  const formatType = (type) => {
+    if (!type) return 'Scholarship';
+    return `${type} Scholarship`;
+  };
+
+  // Helper: format amount (stored as a plain number, e.g. 100, 50) into "100% Tuition"
+  const formatAmount = (amount) => {
+    if (amount === null || amount === undefined) return 'N/A';
+    return `${amount}% Tuition`;
+  };
+
+  // Helper: format the deadline date into a readable string
+  const formatDeadline = (deadline) => {
+    if (!deadline) return 'TBA';
+    return new Date(deadline).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+  };
 
   return (
     <div className="scholarships-page">
@@ -127,13 +92,27 @@ export default function Scholarshipspage() {
             <Link to="/contact" className="nav-link">Contact</Link>
           </nav>
 
-          <div className="avatar-container">
-            <div className="avatar">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" fill="rgba(255,255,255,0.2)"/>
-                <circle cx="12" cy="10" r="4" fill="#ffffff"/>
-                <path d="M6 18.5C6 15.4624 9.03757 14 12 14C14.9624 14 18 15.4624 18 18.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"/>
+          <div className="avatar-container" ref={dropdownRef}>
+            <div className="avatar" onClick={() => setDropdownActive(!dropdownActive)}>
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="18" cy="18" r="18" fill="rgba(255,255,255,0.2)"/>
+                <circle cx="18" cy="14" r="6" fill="rgba(255,255,255,0.85)"/>
+                <ellipse cx="18" cy="30" rx="10" ry="6" fill="rgba(255,255,255,0.85)"/>
               </svg>
+            </div>
+
+            <div className={`profile-dropdown ${dropdownActive ? 'active' : ''}`}>
+              <div className="dropdown-header">
+                <p className="user-name">{currentUser?.name || 'Unihub User'}</p>
+                <p className="user-email">{currentUser?.email || 'student@unihub.edu'}</p>
+              </div>
+              <div className="dropdown-divider"></div>
+              <a href="#profile" className="dropdown-item">My Profile</a>
+              <a href="#settings" className="dropdown-item">Account Settings</a>
+              <div className="dropdown-divider"></div>
+              <span onClick={handleLogout} className="dropdown-item logout-item" style={{ cursor: 'pointer' }}>
+                Log Out
+              </span>
             </div>
           </div>
         </header>
@@ -146,27 +125,33 @@ export default function Scholarshipspage() {
 
       {/* Main Grid Content Area */}
       <main className="scholarships-list">
-        {SCHOLARSHIPS.map((s) => (
-          <div
-            className="scholarship-row-card clickable"
-            key={s.id}
-            onClick={() => setSelectedScholarship(s)}
-          >
-            <span className={`scholarship-row-badge ${s.type === "Partial Scholarship" ? "partial" : ""}`}>
-              {s.type}
-            </span>
-            <h3>{s.name}</h3>
-            <p className="scholarship-row-provider">{s.provider}</p>
-            <div className="scholarship-row-meta">
-              <span><strong>Amount:</strong> {s.amount}</span>
-              <span><strong>Deadline:</strong> {s.deadline}</span>
-              <span><strong>Level:</strong> {s.level}</span>
+        {loading ? (
+          <p>Loading scholarships...</p>
+        ) : scholarships.length === 0 ? (
+          <p>No scholarships listed yet.</p>
+        ) : (
+          scholarships.map((s) => (
+            <div
+              className="scholarship-row-card clickable"
+              key={s.id}
+              onClick={() => setSelectedScholarship(s)}
+            >
+              <span className={`scholarship-row-badge ${s.type?.toLowerCase() === "partial" ? "partial" : ""}`}>
+                {formatType(s.type)}
+              </span>
+              <h3>{s.name}</h3>
+              <p className="scholarship-row-provider">{s.provider}</p>
+              <div className="scholarship-row-meta">
+                <span><strong>Amount:</strong> {formatAmount(s.amount)}</span>
+                <span><strong>Deadline:</strong> {formatDeadline(s.deadline)}</span>
+                <span><strong>Universities:</strong> {s.universities?.length || 0}</span>
+              </div>
+              <div className="card-footer-action">
+                <span>View Requirements & Universities &rarr;</span>
+              </div>
             </div>
-            <div className="card-footer-action">
-              <span>View Requirements & Universities &rarr;</span>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </main>
 
       {/* Detail Modal Overlay */}
@@ -174,27 +159,27 @@ export default function Scholarshipspage() {
         <div className="modal-backdrop" onClick={() => setSelectedScholarship(null)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setSelectedScholarship(null)}>&times;</button>
-            
-            <span className={`scholarship-row-badge ${selectedScholarship.type === "Partial Scholarship" ? "partial" : ""}`}>
-              {selectedScholarship.type}
+
+            <span className={`scholarship-row-badge ${selectedScholarship.type?.toLowerCase() === "partial" ? "partial" : ""}`}>
+              {formatType(selectedScholarship.type)}
             </span>
-            
+
             <h2>{selectedScholarship.name}</h2>
             <p className="scholarship-row-provider">{selectedScholarship.provider}</p>
 
             <div className="modal-grid">
-              <div><strong>Amount:</strong> {selectedScholarship.amount}</div>
-              <div><strong>Deadline:</strong> {selectedScholarship.deadline}</div>
-              <div><strong>Level:</strong> {selectedScholarship.level}</div>
+              <div><strong>Amount:</strong> {formatAmount(selectedScholarship.amount)}</div>
+              <div><strong>Deadline:</strong> {formatDeadline(selectedScholarship.deadline)}</div>
+              <div><strong>Eligibility:</strong> {selectedScholarship.eligibitily}</div>
             </div>
 
             <hr className="modal-divider" />
 
             <div className="modal-section">
-              <h3>Eligible Universities ({selectedScholarship.universities.length})</h3>
+              <h3>Eligible Universities ({selectedScholarship.universities?.length || 0})</h3>
               <ul className="uni-list">
-                {selectedScholarship.universities.map((uni, idx) => (
-                  <li key={idx}>{uni}</li>
+                {(selectedScholarship.universities || []).map((uni) => (
+                  <li key={uni.uni_id}>{uni.name}</li>
                 ))}
               </ul>
             </div>
@@ -202,8 +187,8 @@ export default function Scholarshipspage() {
             <div className="modal-section">
               <h3>Requirements & Eligibility</h3>
               <ul>
-                {selectedScholarship.requirements.map((req, idx) => (
-                  <li key={idx}>{req}</li>
+                {(selectedScholarship.requirements || []).map((req) => (
+                  <li key={req.id}>{req.requirement_text}</li>
                 ))}
               </ul>
             </div>
