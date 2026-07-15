@@ -3,93 +3,86 @@ const TuitionFee = require('../model/TuitionFee');
 class TuitionFeeController {
   static async create(req, res) {
     try {
-      const { amount, year, major_id, university_id } = req.body;
+      const { amount, academicYear, major_id } = req.body;
 
-      if (!amount || !major_id || !university_id) {
-        return res.status(400).json({ message: 'Amount, major_id, and university_id are required' });
+      if (!amount || !academicYear || !major_id) {
+        return res.status(400).json({ message: 'amount, academicYear, and major_id are required' });
       }
 
-      const result = await TuitionFee.create({ amount, year, major_id, university_id });
-      res.status(201).json({ message: 'Tuition fee created successfully', feeId: result.insertId });
+      const result = await TuitionFee.create({ amount, academicYear, major_id });
+      res.status(201).json({ message: 'Tuition fee created', id: result.insertId });
     } catch (error) {
-      res.status(500).json({ message: 'Error creating tuition fee', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error creating tuition fee' });
     }
   }
 
   static async getAll(req, res) {
     try {
       const fees = await TuitionFee.getAll();
-      res.status(200).json(fees);
+      res.json(fees);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching tuition fees', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching tuition fees' });
     }
   }
 
   static async getById(req, res) {
     try {
-      const { id } = req.params;
-      const fee = await TuitionFee.findById(id);
-
-      if (!fee) {
-        return res.status(404).json({ message: 'Tuition fee not found' });
-      }
-
-      res.status(200).json(fee);
+      const fee = await TuitionFee.findById(req.params.id);
+      if (!fee) return res.status(404).json({ message: 'Tuition fee not found' });
+      res.json(fee);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching tuition fee', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching tuition fee' });
     }
   }
 
   static async getByMajor(req, res) {
     try {
-      const { majorId } = req.params;
-      const fees = await TuitionFee.getByMajor(majorId);
-      res.status(200).json(fees);
+      const fees = await TuitionFee.getByMajor(req.params.majorId);
+      res.json(fees);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching tuition fees', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching tuition fees by major' });
     }
   }
 
   static async getByUniversity(req, res) {
     try {
-      const { universityId } = req.params;
-      const fees = await TuitionFee.getByUniversity(universityId);
-      res.status(200).json(fees);
+      const fees = await TuitionFee.getByUniversity(req.params.universityId);
+      res.json(fees);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching tuition fees', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error fetching tuition fees by university' });
     }
   }
 
   static async update(req, res) {
     try {
-      const { id } = req.params;
-      const { amount, year, major_id, university_id } = req.body;
+      const { amount, academicYear, major_id } = req.body;
+      const result = await TuitionFee.update(req.params.id, { amount, academicYear, major_id });
 
-      const fee = await TuitionFee.findById(id);
-      if (!fee) {
+      if (result.affectedRows === 0) {
         return res.status(404).json({ message: 'Tuition fee not found' });
       }
-
-      await TuitionFee.update(id, { amount, year, major_id, university_id });
-      res.status(200).json({ message: 'Tuition fee updated successfully' });
+      res.json({ message: 'Tuition fee updated' });
     } catch (error) {
-      res.status(500).json({ message: 'Error updating tuition fee', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error updating tuition fee' });
     }
   }
 
   static async delete(req, res) {
     try {
-      const { id } = req.params;
-      const fee = await TuitionFee.findById(id);
-
-      if (!fee) {
+      const result = await TuitionFee.delete(req.params.id);
+      if (result.affectedRows === 0) {
         return res.status(404).json({ message: 'Tuition fee not found' });
       }
-
-      await TuitionFee.delete(id);
-      res.status(200).json({ message: 'Tuition fee deleted successfully' });
+      res.json({ message: 'Tuition fee deleted' });
     } catch (error) {
-      res.status(500).json({ message: 'Error deleting tuition fee', error: error.message });
+      console.error(error);
+      res.status(500).json({ message: 'Error deleting tuition fee' });
     }
   }
 }

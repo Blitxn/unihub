@@ -1,11 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UniversityInfoPage from './Infopage';
+import api from '../api';
 import '../search.css';
 
 export default function SearchPage() {
+  const navigate = useNavigate();
   const [dropdownActive, setDropdownActive] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Logged-in user, read from localStorage (set by LoginModal on login/register)
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        setCurrentUser(JSON.parse(stored));
+      } catch (e) {
+        console.error('Could not parse stored user', e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+    setDropdownActive(false);
+    navigate('/');
+  };
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,6 +35,31 @@ export default function SearchPage() {
   const [selectedScholarship, setSelectedScholarship] = useState('');
   const [minRating, setMinRating] = useState('');
   const [sortBy, setSortBy] = useState('');
+
+  // Live rating data from real reviews, keyed by university_id
+  const [liveRatings, setLiveRatings] = useState({});
+  useEffect(() => {
+    api.get('/api/reviews/ratings')
+      .then((res) => {
+        const map = {};
+        (res.data || []).forEach((r) => {
+          map[r.university_id] = r;
+        });
+        setLiveRatings(map);
+      })
+      .catch((error) => console.error('Error fetching ratings:', error));
+  }, []);
+
+  // Blend the seed rating with real review data so a single new review
+  // doesn't swing a school's score wildly — the more reviews a school has,
+  // the more its real average takes over from the starting number.
+  const CONFIDENCE = 10;
+  const blendRating = (seedRating, live) => {
+    if (!live || !live.reviewCount) return { rating: seedRating, reviewCount: 0 };
+    const n = live.reviewCount;
+    const blended = ((CONFIDENCE * seedRating) + (n * live.avgRating)) / (CONFIDENCE + n);
+    return { rating: blended, reviewCount: n };
+  };
 
   // Track which university is clicked
   const [selectedUni, setSelectedUni] = useState(null);
@@ -32,9 +79,10 @@ export default function SearchPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ── UPDATED: Added 'image' and 'rating' fields to all university objects ──
+  // ── UPDATED: Added 'id' field matching each university's uni_id in the database ──
   const universities = [
     { 
+      id: 1,
       name: "Build Bright University", 
       short: "BBU", 
       majors: ["Business", "IT"], 
@@ -44,6 +92,7 @@ export default function SearchPage() {
       rating: 4.2
     }, 
     { 
+      id: 2,
       name: "Cambodia Academy Of Digital Technology", 
       short: "CADT", 
       majors: ["IT", "Engineering"], 
@@ -53,6 +102,7 @@ export default function SearchPage() {
       rating: 4.7
     },
     { 
+      id: 3,
       name: "International University Cambodia", 
       short: "IU", 
       majors: ["Medicine", "Business"], 
@@ -62,6 +112,7 @@ export default function SearchPage() {
       rating: 3.9
     },
     { 
+      id: 4,
       name: "Institute Of Technology Of Cambodia", 
       short: "ITC", 
       majors: ["Engineering", "IT"], 
@@ -71,6 +122,7 @@ export default function SearchPage() {
       rating: 4.8
     },
     { 
+      id: 5,
       name: "National Polytechnic Institute Of Cambodia", 
       short: "NPIC", 
       majors: ["Engineering"], 
@@ -80,6 +132,7 @@ export default function SearchPage() {
      rating: 4.0
     },
     { 
+      id: 6,
       name: "Royal University Of Agriculture Cambodia", 
       short: "RUA", 
       majors: ["Science"], 
@@ -89,6 +142,7 @@ export default function SearchPage() {
       rating: 3.7
     },
     { 
+      id: 7,
       name: "Royal University Of Phnom Penh", 
       short: "RUPP", 
       majors: ["Science", "IT", "Languages"], 
@@ -98,6 +152,7 @@ export default function SearchPage() {
       rating: 4.6
     },
     { 
+      id: 8,
       name: "Royal University Of Fine Arts", 
       short: "RUFA", 
       majors: ["Arts"], 
@@ -107,6 +162,7 @@ export default function SearchPage() {
       rating: 3.8
     },
     { 
+      id: 9,
       name: "University Of Health Science", 
       short: "UHS", 
       majors: ["Medicine"], 
@@ -117,7 +173,12 @@ export default function SearchPage() {
     }
   ];
 
-  const filteredUniversities = universities
+  const universitiesWithLiveRatings = universities.map((uni) => {
+    const { rating, reviewCount } = blendRating(uni.rating, liveRatings[uni.id]);
+    return { ...uni, rating, reviewCount };
+  });
+
+  const filteredUniversities = universitiesWithLiveRatings
     .filter(uni => {
       const matchesSearch = searchQuery === '' || 
         uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -167,14 +228,16 @@ export default function SearchPage() {
 
             <div className={`profile-dropdown ${dropdownActive ? 'active' : ''}`}>
               <div className="dropdown-header">
-                <p className="user-name">Unihub User</p>
-                <p className="user-email">student@unihub.edu</p>
+                <p className="user-name">{currentUser?.name || 'Unihub User'}</p>
+                <p className="user-email">{currentUser?.email || 'student@unihub.edu'}</p>
               </div>
               <div className="dropdown-divider"></div>
               <a href="#profile" className="dropdown-item">My Profile</a>
               <a href="#settings" className="dropdown-item">Account Settings</a>
               <div className="dropdown-divider"></div>
-              <Link to="/" className="dropdown-item logout-item">Log Out</Link>
+              <span onClick={handleLogout} className="dropdown-item logout-item" style={{ cursor: 'pointer' }}>
+                Log Out
+              </span>
             </div>
           </div>
         </header>
@@ -258,6 +321,11 @@ export default function SearchPage() {
                     {'★'.repeat(Math.round(uni.rating))}{'☆'.repeat(5 - Math.round(uni.rating))}
                   </span>
                   <span className="uni-card-rating-num">{uni.rating.toFixed(1)}</span>
+                  {uni.reviewCount > 0 && (
+                    <span className="uni-card-review-count" style={{ fontSize: '0.8rem', color: '#888', marginLeft: 4 }}>
+                      ({uni.reviewCount})
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

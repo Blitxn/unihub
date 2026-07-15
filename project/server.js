@@ -5,7 +5,10 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,6 +20,8 @@ const majorRoute = require('./routes/majorRoute');
 const scholarshipRoute = require('./routes/scholarshipRoute');
 const tuitionFeeRoute = require('./routes/tuitionFeeRoute');
 const facultyRoute = require('./routes/facultyRoute');
+const programRoute = require('./routes/programRoute');
+const reviewRoute = require('./routes/reviewRoute');
 const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());  
@@ -27,6 +32,8 @@ app.use('/api/majors', majorRoute);
 app.use('/api/scholarships', scholarshipRoute);
 app.use('/api/tuition-fees', tuitionFeeRoute);
 app.use('/api/faculties', facultyRoute);
+app.use('/api/programs', programRoute);
+app.use('/api/reviews', reviewRoute);
 
 // Health check
 app.get('/api/health', (req, res) => {

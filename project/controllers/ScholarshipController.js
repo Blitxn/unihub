@@ -25,6 +25,16 @@ class ScholarshipController {
     }
   }
 
+  // Returns every scholarship, each including its linked universities + requirements
+  static async getAllWithDetails(req, res) {
+    try {
+      const scholarships = await Scholarship.getAllWithDetails();
+      res.status(200).json(scholarships);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching scholarships with details', error: error.message });
+    }
+  }
+
   static async getById(req, res) {
     try {
       const { id } = req.params;
@@ -37,6 +47,22 @@ class ScholarshipController {
       res.status(200).json(scholarship);
     } catch (error) {
       res.status(500).json({ message: 'Error fetching scholarship', error: error.message });
+    }
+  }
+
+  // Returns one scholarship's full detail: itself + universities + requirements
+  static async getDetailById(req, res) {
+    try {
+      const { id } = req.params;
+      const scholarship = await Scholarship.getFullDetail(id);
+
+      if (!scholarship) {
+        return res.status(404).json({ message: 'Scholarship not found' });
+      }
+
+      res.status(200).json(scholarship);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching scholarship detail', error: error.message });
     }
   }
 

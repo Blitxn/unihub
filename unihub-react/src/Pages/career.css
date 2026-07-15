@@ -69,6 +69,82 @@
     border-radius: 2px;
 }
 
+/* ── Profile Avatar / Dropdown ── */
+.career-page .avatar-container {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.career-page .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.career-page .profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    width: 240px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    padding: 8px 0;
+    z-index: 100;
+    text-align: left;
+}
+
+.career-page .profile-dropdown.active {
+    display: block;
+}
+
+.career-page .dropdown-header {
+    padding: 12px 18px;
+}
+
+.career-page .user-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.career-page .user-email {
+    font-size: 0.8rem;
+    color: #888;
+    margin: 2px 0 0;
+}
+
+.career-page .dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 4px 0;
+}
+
+.career-page .dropdown-item {
+    display: block;
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    color: #333;
+    text-decoration: none;
+}
+
+.career-page .dropdown-item:hover {
+    background: #f5f6fb;
+}
+
+.career-page .dropdown-item.logout-item {
+    color: #e03131;
+}
+
 /* ── Hero Banner ── */
 .career-hero {
     background: linear-gradient(160deg, #5566f5 0%, #4a58ee 50%, #3b4ce0 100%);
@@ -324,6 +400,10 @@
     }
     .career-page .logo {
         position: static;
+    }
+    .career-page .avatar-container {
+        position: static;
+        transform: none;
     }
     .career-hero,
     .career-majors-grid,
