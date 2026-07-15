@@ -22,23 +22,12 @@ function sanitizeUser(user) {
 
 function createToken(user) {
   return jwt.sign(
-    {
-      id: user.u_id,
-      email: user.email,
-    },
+    { id: user.u_id },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
 }
 
-function setTokenCookie(res, token) {
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-  });
-}
 
 class UserController {
   static async register(req, res) {
@@ -60,12 +49,9 @@ class UserController {
       const createdUser = await User.findById(result.insertId);
       const token = createToken(createdUser);
 
-      setTokenCookie(res, token);
-
       res.status(201).json({
         message: 'User registered successfully',
         token,
-        user: sanitizeUser(createdUser),
       });
     } catch (error) {
       res.status(500).json({ message: 'Error registering user', error: error.message });
@@ -99,13 +85,10 @@ class UserController {
       }
 
       const token = createToken(user);
-
-      setTokenCookie(res, token);
-
+      
       res.status(200).json({
         message: 'Login successful',
         token,
-        user: sanitizeUser(user),
       });
     } catch (error) {
       res.status(500).json({ message: 'Error logging in', error: error.message });

@@ -3,24 +3,32 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'unihub_jwt_secret';
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers.authorization || '';
-  const tokenFromHeader = authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : null;
+  const authHeader = req.headers.authorization;
 
-  const token = req.cookies?.token || tokenFromHeader;
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      message: 'Access token required'
+    });
   }
 
+  const token = authHeader.split(' ')[1];
+
   try {
+    // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Store user information in request
     req.user = decoded;
-    return next();
+
+    next();
+
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+    return res.status(403).json({
+      message: 'Invalid or expired token'
+    });
   }
 }
 
-module.exports = { authenticateToken };
+module.exports = {
+  authenticateToken
+};
