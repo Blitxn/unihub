@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
+const User = require('../model/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'unihub_jwt_secret';
 
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -14,11 +15,21 @@ function authenticateToken(req, res, next) {
   const token = authHeader.split(' ')[1];
 
   try {
-    // Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.id);
 
-    // Store user information in request
-    req.user = decoded;
+    if (!user) {
+      return res.status(401).json({
+        message: 'User not found'
+      });
+    }
+
+    req.user = {
+      id: user.u_id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
 
     next();
 
@@ -29,6 +40,18 @@ function authenticateToken(req, res, next) {
   }
 }
 
+function authorizeRole(...allowedRoles) {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: 'Forbidden: insufficient permissions'
+      });
+    }
+    next();
+  };
+}
+
 module.exports = {
-  authenticateToken
+  authenticateToken,
+  authorizeRole
 };

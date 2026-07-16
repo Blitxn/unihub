@@ -12,7 +12,7 @@ import "./home.css";
 
 export default function App() {
   const [loginOpen, setLoginOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(localStorage.getItem('token')));
   const [pendingPath, setPendingPath] = useState(null);
 
   const openLogin = () => {

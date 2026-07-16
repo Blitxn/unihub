@@ -54,12 +54,8 @@ function LoginModal({ open, onClose, onLoginSuccess, pendingPath }) {
         password: loginPassword,
       });
 
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data.user)
-      );
-
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
 
       onLoginSuccess();
       handleClose();
@@ -100,33 +96,21 @@ function LoginModal({ open, onClose, onLoginSuccess, pendingPath }) {
       name: signupName,
       email: signupEmail,
       password: signupPassword,
-      role: "student"
+      role: 'student'
     });
 
-    console.log("REGISTER SUCCESS:", res.data);
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data.user)
-    );
+    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('user', JSON.stringify(res.data.user));
 
     onLoginSuccess();
     handleClose();
-
-    navigate(pendingPath || '/search');
-
   } catch (err) {
-
-    console.log("REGISTER ERROR:", err);
-
-    console.log(
-      "SERVER RESPONSE:",
-      err.response?.data
-    );
+    console.log('REGISTER ERROR:', err);
+    console.log('SERVER RESPONSE:', err.response?.data);
 
     setSignupError(
       err.response?.data?.message ||
-      "Registration failed."
+      'Registration failed.'
     );
   }
 };
