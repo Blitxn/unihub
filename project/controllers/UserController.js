@@ -58,11 +58,13 @@ class UserController {
       const createdUser = await User.findById(result.insertId);
       const token = createToken(createdUser);
       const refreshToken = createRefreshToken(createdUser);
+      const user = sanitizeUser(createdUser);
 
       res.status(201).json({
         message: 'User registered successfully',
         token,
         refreshToken,
+        user,
       });
     } catch (error) {
       res.status(500).json({ message: 'Error registering user', error: error.message });
@@ -97,11 +99,13 @@ class UserController {
 
       const token = createToken(user);
       const refreshToken = createRefreshToken(user);
+      const sanitizedUser = sanitizeUser(user);
       
       res.status(200).json({
         message: 'Login successful',
         token,
         refreshToken,
+        user: sanitizedUser,
       });
     } catch (error) {
       res.status(500).json({ message: 'Error logging in', error: error.message });
