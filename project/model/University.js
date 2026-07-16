@@ -1,37 +1,39 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes } = require('sequelize');
+
+const UniversityModel = sequelize.define('University', {
+  uni_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
+  location: { type: DataTypes.STRING },
+}, {
+  tableName: 'University',
+  timestamps: false,
+});
 
 class University {
   static async create(universityData) {
-    const { name, location } = universityData;
-    const [result] = await pool.query(
-      'INSERT INTO University (name, location) VALUES (?, ?)',
-      [name, location]
-    );
-    return result;
+    const university = await UniversityModel.create(universityData);
+    return { insertId: university.uni_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM University WHERE uni_id = ?', [id]);
-    return rows[0];
+    const university = await UniversityModel.findByPk(id);
+    return university ? university.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM University');
-    return rows;
+    const universities = await UniversityModel.findAll();
+    return universities.map((u) => u.get());
   }
 
   static async update(id, universityData) {
-    const { name, location } = universityData;
-    const [result] = await pool.query(
-      'UPDATE University SET name = ?, location = ? WHERE uni_id = ?',
-      [name, location, id]
-    );
-    return result;
+    const [affectedRows] = await UniversityModel.update(universityData, { where: { uni_id: id } });
+    return { affectedRows };
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM University WHERE uni_id = ?', [id]);
-    return result;
+    const affectedRows = await UniversityModel.destroy({ where: { uni_id: id } });
+    return { affectedRows };
   }
 }
 

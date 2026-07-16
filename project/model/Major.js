@@ -1,42 +1,54 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes } = require('sequelize');
+
+const MajorModel = sequelize.define('Major', {
+  m_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
+  duration: { type: DataTypes.STRING },
+  p_id: { type: DataTypes.INTEGER },
+  uni_id: { type: DataTypes.INTEGER },
+}, {
+  tableName: 'Major',
+  timestamps: false,
+});
 
 class Major {
   static async create(majorData) {
-    const { name, duration, program_id, university_id } = majorData;
-    const [result] = await pool.query(
-      'INSERT INTO Major (name, duration, p_id, uni_id) VALUES (?, ?, ?, ?)',
-      [name, duration, program_id, university_id]
-    );
-    return result;
+    const major = await MajorModel.create({
+      name: majorData.name,
+      duration: majorData.duration,
+      p_id: majorData.program_id,
+      uni_id: majorData.university_id,
+    });
+    return { insertId: major.m_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM Major WHERE m_id = ?', [id]);
-    return rows[0];
+    const major = await MajorModel.findByPk(id);
+    return major ? major.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM Major');
-    return rows;
+    const majors = await MajorModel.findAll();
+    return majors.map((m) => m.get());
   }
 
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query('SELECT * FROM Major WHERE uni_id = ?', [universityId]);
-    return rows;
+    const majors = await MajorModel.findAll({ where: { uni_id: universityId } });
+    return majors.map((m) => m.get());
   }
 
   static async update(id, majorData) {
-    const { name, duration, program_id, university_id } = majorData;
-    const [result] = await pool.query(
-      'UPDATE Major SET name = ?, duration = ?, p_id = ?, uni_id = ? WHERE m_id = ?',
-      [name, duration, program_id, university_id, id]
-    );
-    return result;
+    return MajorModel.update({
+      name: majorData.name,
+      duration: majorData.duration,
+      p_id: majorData.program_id,
+      uni_id: majorData.university_id,
+    }, { where: { m_id: id } });
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM Major WHERE m_id = ?', [id]);
-    return result;
+    return MajorModel.destroy({ where: { m_id: id } });
   }
 }
 

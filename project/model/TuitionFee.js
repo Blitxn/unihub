@@ -1,52 +1,55 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes, QueryTypes } = require('sequelize');
+
+const TuitionFeeModel = sequelize.define('TuitionFee', {
+  fee_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  amount: { type: DataTypes.DECIMAL },
+  academicYear: { type: DataTypes.STRING },
+  m_id: { type: DataTypes.INTEGER },
+}, {
+  tableName: 'tuitionfee',
+  timestamps: false,
+});
 
 class TuitionFee {
   static async create(feeData) {
-    const { amount, academicYear, major_id } = feeData;
-    const [result] = await pool.query(
-      'INSERT INTO tuitionfee (amount, academicYear, m_id) VALUES (?, ?, ?)',
-      [amount, academicYear, major_id]
-    );
-    return result;
+    const fee = await TuitionFeeModel.create(feeData);
+    return { insertId: fee.fee_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM tuitionfee WHERE fee_id = ?', [id]);
-    return rows[0];
+    const fee = await TuitionFeeModel.findByPk(id);
+    return fee ? fee.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM tuitionfee');
-    return rows;
+    const fees = await TuitionFeeModel.findAll();
+    return fees.map((f) => f.get());
   }
 
   static async getByMajor(majorId) {
-    const [rows] = await pool.query('SELECT * FROM tuitionfee WHERE m_id = ?', [majorId]);
-    return rows;
+    const fees = await TuitionFeeModel.findAll({ where: { m_id: majorId } });
+    return fees.map((f) => f.get());
   }
 
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       `SELECT tf.* FROM tuitionfee tf
        JOIN Major m ON tf.m_id = m.m_id
        WHERE m.uni_id = ?`,
-      [universityId]
+      { replacements: [universityId], type: QueryTypes.SELECT }
     );
     return rows;
   }
 
   static async update(id, feeData) {
-    const { amount, academicYear, major_id } = feeData;
-    const [result] = await pool.query(
-      'UPDATE tuitionfee SET amount = ?, academicYear = ?, m_id = ? WHERE fee_id = ?',
-      [amount, academicYear, major_id, id]
-    );
-    return result;
+    const [affectedRows] = await TuitionFeeModel.update(feeData, { where: { fee_id: id } });
+    return { affectedRows };
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM tuitionfee WHERE fee_id = ?', [id]);
-    return result;
+    const affectedRows = await TuitionFeeModel.destroy({ where: { fee_id: id } });
+    return { affectedRows };
   }
 }
 

@@ -1,52 +1,63 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes, QueryTypes } = require('sequelize');
+
+const ScholarshipModel = sequelize.define('Scholarship', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
+  provider: { type: DataTypes.STRING },
+  amount: { type: DataTypes.DECIMAL },
+  eligibitily: { type: DataTypes.STRING },
+  deadline: { type: DataTypes.DATE },
+  type: { type: DataTypes.STRING },
+  uni_id: { type: DataTypes.INTEGER },
+}, {
+  tableName: 'Scholarship',
+  timestamps: false,
+});
 
 class Scholarship {
   static async create(scholarshipData) {
-    const { name, provider, amount, eligibitily, deadline, type, university_id } = scholarshipData;
-    const [result] = await pool.query(
-      'INSERT INTO Scholarship (name, provider, amount, eligibitily, deadline, type, uni_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, provider, amount, eligibitily, deadline, type, university_id]
-    );
-    return result;
+    const scholarship = await ScholarshipModel.create(scholarshipData);
+    return { insertId: scholarship.id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM Scholarship WHERE id = ?', [id]);
-    return rows[0];
+    const scholarship = await ScholarshipModel.findByPk(id);
+    return scholarship ? scholarship.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM Scholarship');
-    return rows;
+    const scholarships = await ScholarshipModel.findAll();
+    return scholarships.map((s) => s.get());
   }
 
   // Returns scholarships tied to a university via the new many-to-many join table
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       `SELECT s.* FROM Scholarship s
        JOIN scholarship_university su ON s.id = su.scholarship_id
        WHERE su.uni_id = ?`,
-      [universityId]
+      { replacements: [universityId], type: QueryTypes.SELECT }
     );
     return rows;
   }
 
   // Get the list of university IDs + names linked to one scholarship
   static async getUniversitiesForScholarship(scholarshipId) {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       `SELECT u.uni_id, u.name FROM university u
        JOIN scholarship_university su ON u.uni_id = su.uni_id
        WHERE su.scholarship_id = ?`,
-      [scholarshipId]
+      { replacements: [scholarshipId], type: QueryTypes.SELECT }
     );
     return rows;
   }
 
   // Get the list of requirement text rows linked to one scholarship
   static async getRequirementsForScholarship(scholarshipId) {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       'SELECT id, requirement_text FROM scholarship_requirement WHERE scholarship_id = ?',
-      [scholarshipId]
+      { replacements: [scholarshipId], type: QueryTypes.SELECT }
     );
     return rows;
   }
@@ -82,17 +93,13 @@ class Scholarship {
   }
 
   static async update(id, scholarshipData) {
-    const { name, provider, amount, eligibitily, deadline, type, university_id } = scholarshipData;
-    const [result] = await pool.query(
-      'UPDATE Scholarship SET name = ?, provider = ?, amount = ?, eligibitily = ?, deadline = ?, type = ?, uni_id = ? WHERE id = ?',
-      [name, provider, amount, eligibitily, deadline, type, university_id, id]
-    );
-    return result;
+    const [affectedRows] = await ScholarshipModel.update(scholarshipData, { where: { id } });
+    return { affectedRows };
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM Scholarship WHERE id = ?', [id]);
-    return result;
+    const affectedRows = await ScholarshipModel.destroy({ where: { id } });
+    return { affectedRows };
   }
 }
 

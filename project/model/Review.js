@@ -1,27 +1,33 @@
-// model/Review.js
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes, QueryTypes } = require('sequelize');
+
+const ReviewModel = sequelize.define('Review', {
+  review_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  user_id: { type: DataTypes.INTEGER },
+  university_id: { type: DataTypes.INTEGER },
+  rating: { type: DataTypes.INTEGER },
+  body: { type: DataTypes.TEXT },
+  created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+}, {
+  tableName: 'reviews',
+  timestamps: false,
+});
 
 class Review {
   static async create({ user_id, university_id, rating, body }) {
-    const [result] = await pool.query(
-      'INSERT INTO reviews (user_id, university_id, rating, body) VALUES (?, ?, ?, ?)',
-      [user_id, university_id, rating, body]
-    );
-    return result;
+    const review = await ReviewModel.create({ user_id, university_id, rating, body });
+    return { insertId: review.review_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query(
-      'SELECT * FROM reviews WHERE review_id = ?',
-      [id]
-    );
-    return rows[0];
+    const review = await ReviewModel.findByPk(id);
+    return review ? review.get() : null;
   }
 
   // Joins to users so we always return the reviewer's current name,
   // never a name typed into the form.
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       `SELECT
          r.review_id,
          r.rating,
@@ -33,37 +39,32 @@ class Review {
        JOIN users u ON r.user_id = u.u_id
        WHERE r.university_id = ?
        ORDER BY r.created_at DESC`,
-      [universityId]
+      { replacements: [universityId], type: QueryTypes.SELECT }
     );
     return rows;
   }
 
   static async delete(id) {
-    const [result] = await pool.query(
-      'DELETE FROM reviews WHERE review_id = ?',
-      [id]
-    );
-    return result;
+    const affectedRows = await ReviewModel.destroy({ where: { review_id: id } });
+    return { affectedRows };
   }
 
-  // Average rating + review count for ONE university (used on the detail page)
   static async getAverageByUniversity(universityId) {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       `SELECT AVG(rating) AS avgRating, COUNT(*) AS reviewCount
        FROM reviews
        WHERE university_id = ?`,
-      [universityId]
+      { replacements: [universityId], type: QueryTypes.SELECT }
     );
     return rows[0];
   }
 
-  // Average rating + review count for EVERY university in one query
-  // (used to populate the star ratings on the university listing cards)
   static async getAllAverages() {
-    const [rows] = await pool.query(
+    const rows = await sequelize.query(
       `SELECT university_id, AVG(rating) AS avgRating, COUNT(*) AS reviewCount
        FROM reviews
-       GROUP BY university_id`
+       GROUP BY university_id`,
+      { type: QueryTypes.SELECT }
     );
     return rows;
   }

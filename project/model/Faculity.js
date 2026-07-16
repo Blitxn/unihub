@@ -1,42 +1,48 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes } = require('sequelize');
+
+const FacultyModel = sequelize.define('Faculty', {
+  p_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
+  uni_id: { type: DataTypes.INTEGER },
+}, {
+  tableName: 'Program',
+  timestamps: false,
+});
 
 class Faculty {
   static async create(facultyData) {
-    const { name, university_id } = facultyData;
-    const [result] = await pool.query(
-      'INSERT INTO Program (name, uni_id) VALUES (?, ?)',
-      [name, university_id]
-    );
-    return result;
+    const faculty = await FacultyModel.create({
+      name: facultyData.name,
+      uni_id: facultyData.university_id,
+    });
+    return { insertId: faculty.p_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM Program WHERE p_id = ?', [id]);
-    return rows[0];
+    const faculty = await FacultyModel.findByPk(id);
+    return faculty ? faculty.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM Program');
-    return rows;
+    const faculties = await FacultyModel.findAll();
+    return faculties.map((f) => f.get());
   }
 
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query('SELECT * FROM Program WHERE uni_id = ?', [universityId]);
-    return rows;
+    const faculties = await FacultyModel.findAll({ where: { uni_id: universityId } });
+    return faculties.map((f) => f.get());
   }
 
   static async update(id, facultyData) {
-    const { name, university_id } = facultyData;
-    const [result] = await pool.query(
-      'UPDATE Program SET name = ?, uni_id = ? WHERE p_id = ?',
-      [name, university_id, id]
-    );
-    return result;
+    return FacultyModel.update({
+      name: facultyData.name,
+      uni_id: facultyData.university_id,
+    }, { where: { p_id: id } });
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM Program WHERE p_id = ?', [id]);
-    return result;
+    return FacultyModel.destroy({ where: { p_id: id } });
   }
 }
 

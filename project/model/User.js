@@ -1,42 +1,46 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes } = require('sequelize');
+
+const UserModel = sequelize.define('User', {
+  u_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
+  email: { type: DataTypes.STRING },
+  password: { type: DataTypes.STRING },
+  role: { type: DataTypes.STRING, defaultValue: 'student' },
+}, {
+  tableName: 'users',
+  timestamps: false,
+});
 
 class User {
   static async create(userData) {
-    const { name, email, password, role } = userData;
-    const [result] = await pool.query(
-      'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-      [name, email, password, role || 'student']
-    );
-    return result;
+    const user = await UserModel.create(userData);
+    return { insertId: user.u_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM users WHERE u_id = ?', [id]);
-    return rows[0];
+    const user = await UserModel.findByPk(id);
+    return user ? user.get() : null;
   }
 
   static async findByEmail(email) {
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    return rows[0];
+    const user = await UserModel.findOne({ where: { email } });
+    return user ? user.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM users');
-    return rows;
+    const users = await UserModel.findAll();
+    return users.map((u) => u.get());
   }
 
   static async update(id, userData) {
-    const { name, email, role } = userData;
-    const [result] = await pool.query(
-      'UPDATE users SET name = ?, email = ?, role = ? WHERE u_id = ?',
-      [name, email, role, id]
-    );
-    return result;
+    const [affectedRows] = await UserModel.update(userData, { where: { u_id: id } });
+    return { affectedRows };
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM users WHERE u_id = ?', [id]);
-    return result;
+    const affectedRows = await UserModel.destroy({ where: { u_id: id } });
+    return { affectedRows };
   }
 }
 

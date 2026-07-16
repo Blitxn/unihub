@@ -1,28 +1,37 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes } = require('sequelize');
+
+const ProgramModel = sequelize.define('Program', {
+  p_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING },
+  uni_id: { type: DataTypes.INTEGER },
+}, {
+  tableName: 'program',
+  timestamps: false,
+});
 
 class Program {
   static async create(programData) {
-    const { name, university_id } = programData;
-    const [result] = await pool.query(
-      'INSERT INTO program (name, uni_id) VALUES (?, ?)',
-      [name, university_id]
-    );
-    return result;
+    const program = await ProgramModel.create({
+      name: programData.name,
+      uni_id: programData.university_id,
+    });
+    return { insertId: program.p_id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM program WHERE p_id = ?', [id]);
-    return rows[0];
+    const program = await ProgramModel.findByPk(id);
+    return program ? program.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM program');
-    return rows;
+    const programs = await ProgramModel.findAll();
+    return programs.map((p) => p.get());
   }
 
   static async getByUniversity(universityId) {
-    const [rows] = await pool.query('SELECT * FROM program WHERE uni_id = ?', [universityId]);
-    return rows;
+    const programs = await ProgramModel.findAll({ where: { uni_id: universityId } });
+    return programs.map((p) => p.get());
   }
 }
 

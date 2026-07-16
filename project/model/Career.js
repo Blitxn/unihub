@@ -1,42 +1,45 @@
-const pool = require('../database/database');
+const sequelize = require('../database/database');
+const { DataTypes } = require('sequelize');
+
+const CareerModel = sequelize.define('Career', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  job_title: { type: DataTypes.STRING },
+  description: { type: DataTypes.TEXT },
+  salaryMin: { type: DataTypes.DECIMAL },
+  salaryMax: { type: DataTypes.DECIMAL },
+  m_id: { type: DataTypes.INTEGER },
+}, {
+  tableName: 'Career',
+  timestamps: false,
+});
 
 class Career {
   static async create(careerData) {
-    const { job_title, description, salaryMin, salaryMax, major_id } = careerData;
-    const [result] = await pool.query(
-      'INSERT INTO Career (job_title, description, salaryMin, salaryMax, m_id) VALUES (?, ?, ?, ?, ?)',
-      [job_title, description, salaryMin, salaryMax, major_id]
-    );
-    return result;
+    const career = await CareerModel.create(careerData);
+    return { insertId: career.id };
   }
 
   static async findById(id) {
-    const [rows] = await pool.query('SELECT * FROM Career WHERE id = ?', [id]);
-    return rows[0];
+    const career = await CareerModel.findByPk(id);
+    return career ? career.get() : null;
   }
 
   static async getAll() {
-    const [rows] = await pool.query('SELECT * FROM Career');
-    return rows;
+    const careers = await CareerModel.findAll();
+    return careers.map((c) => c.get());
   }
 
   static async getByMajor(majorId) {
-    const [rows] = await pool.query('SELECT * FROM Career WHERE m_id = ?', [majorId]);
-    return rows;
+    const careers = await CareerModel.findAll({ where: { m_id: majorId } });
+    return careers.map((c) => c.get());
   }
 
   static async update(id, careerData) {
-    const { job_title, description, salaryMin, salaryMax, major_id } = careerData;
-    const [result] = await pool.query(
-      'UPDATE Career SET job_title = ?, description = ?, salaryMin = ?, salaryMax = ?, m_id = ? WHERE id = ?',
-      [job_title, description, salaryMin, salaryMax, major_id, id]
-    );
-    return result;
+    return CareerModel.update(careerData, { where: { id } });
   }
 
   static async delete(id) {
-    const [result] = await pool.query('DELETE FROM Career WHERE id = ?', [id]);
-    return result;
+    return CareerModel.destroy({ where: { id } });
   }
 }
 
